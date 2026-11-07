@@ -1,4 +1,4 @@
 package engine.modelo;
 
-public class Posicao {
+public record Posicao(int linha, int coluna) {
 }
