@@ -1,4 +1,7 @@
 package engine.modelo;
 
-public class EstadoDoJogo {
+public enum EstadoDoJogo {
+    EM_ANDAMENTO,
+    VITORIA,
+    EMPATE
 }
