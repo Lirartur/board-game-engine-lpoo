@@ -1,0 +1,10 @@
+{
+  "nome": "Jogo da Velha",
+  "tabuleiro": { "linhas": 3, "colunas": 3 },
+  "jogadores": { "quantidade": 2, "simbolosSugeridos": ["X", "O"] },
+  "regras": {
+    "preparacao": "TABULEIRO_VAZIO",
+    "movimento": "POSICIONAMENTO_LIVRE",
+    "vitoria": { "tipo": "ALINHAMENTO", "quantidade": 3 }
+  }
+}
