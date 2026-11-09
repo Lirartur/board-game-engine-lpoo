@@ -1,5 +1,6 @@
 package engine.terminal;
 
+import engine.excecoes.Excecoes.ConfiguracaoInvalida;
 import engine.excecoes.Excecoes.JogadaInvalida;
 import engine.excecoes.Excecoes.PosicaoInvalida;
 import engine.modelo.EstadoDoJogo;
@@ -10,10 +11,14 @@ import engine.modelo.Posicao;
 import engine.modelo.Resultado;
 import engine.modelo.Tabuleiro;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 public class InterfaceDeTerminal {
 
@@ -21,6 +26,45 @@ public class InterfaceDeTerminal {
 
     public InterfaceDeTerminal(Scanner scanner) {
         this.scanner = scanner;
+    }
+
+    public void exibirBanner() {
+        System.out.println("ENGINE");
+    }
+
+    public Path escolherArquivo(Path pasta) throws ConfiguracaoInvalida {
+        List<Path> arquivos;
+        try (Stream<Path> fluxo = Files.list(pasta)) {
+            arquivos = fluxo
+                    .filter(p -> Files.isRegularFile(p) && p.getFileName().toString().endsWith(".json"))
+                    .sorted()
+                    .toList();
+        } catch (IOException e) {
+            throw new ConfiguracaoInvalida("Nao foi possivel abrir a pasta '" + pasta + "'.");
+        }
+        if (arquivos.isEmpty()) {
+            throw new ConfiguracaoInvalida("Nenhum jogo encontrado na pasta '" + pasta + "'.");
+        }
+
+        System.out.println();
+        System.out.println("Selecione o jogo:");
+        System.out.println();
+        for (int i = 0; i < arquivos.size(); i++) {
+            String nome = arquivos.get(i).getFileName().toString().replaceFirst("\\.json$", "");
+            System.out.println((i + 1) + " - " + nome);
+        }
+        while (true) {
+            System.out.print("Opcao: ");
+            try {
+                int opcao = Integer.parseInt(lerLinha().trim());
+                if (opcao >= 1 && opcao <= arquivos.size()) {
+                    return arquivos.get(opcao - 1);
+                }
+                exibirErro("Escolha um numero entre 1 e " + arquivos.size() + ".");
+            } catch (NumberFormatException e) {
+                exibirErro("Digite apenas o numero do jogo.");
+            }
+        }
     }
 
     public List<Jogador> criarJogadores(int quantidade, List<String> simbolosSugeridos) {
@@ -36,7 +80,8 @@ public class InterfaceDeTerminal {
     }
 
     public void executar(Jogo jogo) {
-        exibirCabecalho(jogo);
+        System.out.println();
+        System.out.println("Jogo: " + jogo.getNome());
         while (!jogo.terminou()) {
             desenharTabuleiro(jogo.getTabuleiro());
             Jogador jogador = jogo.getJogadorDaVez();
@@ -55,9 +100,11 @@ public class InterfaceDeTerminal {
         System.out.println("Erro: " + mensagem);
     }
 
-    private void exibirCabecalho(Jogo jogo) {
-        System.out.println("Board game engine");
-        System.out.println("Jogo: " + jogo.getNome());
+    public void exibirErroDeCarregamento(String mensagem) {
+        System.out.println();
+        System.out.println("Erro ao carregar o jogo:");
+        System.out.println();
+        System.out.println(mensagem);
     }
 
     private void exibirResultado(Resultado resultado) {
@@ -79,11 +126,11 @@ public class InterfaceDeTerminal {
                 texto = sugestao;
             }
             if (texto.codePointCount(0, texto.length()) != 1) {
-                exibirErro("o simbolo tem que ter 1 caractere.");
+                exibirErro("O simbolo deve ter exatamente 1 caractere.");
             } else if (Character.isWhitespace(texto.codePointAt(0))) {
-                exibirErro("O simbolo nao pode ser espaco.");
+                exibirErro("O simbolo nao pode ser um espaco.");
             } else if (usados.contains(texto)) {
-                exibirErro("Esse simbolo ja ta sendo usado.");
+                exibirErro("Esse simbolo ja foi escolhido por outro jogador.");
             } else {
                 return texto;
             }
@@ -97,13 +144,13 @@ public class InterfaceDeTerminal {
             try {
                 int numero = Integer.parseInt(texto);
                 if (numero < 1) {
-                    exibirErro("digite um numero maior que zero.");
+                    exibirErro("Digite um numero maior que zero.");
                     continue;
                 }
                 int colunas = tabuleiro.getColunas();
                 return new Posicao((numero - 1) / colunas, (numero - 1) % colunas);
             } catch (NumberFormatException e) {
-                exibirErro("digite apenas o numero da posicao.");
+                exibirErro("Digite apenas o numero da posicao.");
             }
         }
     }
@@ -140,7 +187,7 @@ public class InterfaceDeTerminal {
         try {
             return tabuleiro.obterPeca(posicao);
         } catch (PosicaoInvalida e) {
-            return null; // nn acontece so coisamos posicoes do proprio tabuleiro
+            return null; // nunca acontece: so desenhamos posicoes do proprio tabuleiro
         }
     }
 
@@ -149,7 +196,7 @@ public class InterfaceDeTerminal {
             return scanner.nextLine();
         } catch (NoSuchElementException e) {
             System.out.println();
-            System.out.println("entrada encerrada. ate a proxima!");
+            System.out.println("Entrada encerrada. Ate a proxima!");
             System.exit(0);
             return "";
         }
