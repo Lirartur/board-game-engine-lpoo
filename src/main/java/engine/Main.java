@@ -1,31 +1,38 @@
 package engine;
 
+import engine.configuracao.CarregadorDeJogo;
+import engine.configuracao.ConfiguracaoDoJogo;
+import engine.configuracao.FabricaDeRegras;
 import engine.excecoes.Excecoes.ConfiguracaoInvalida;
-import engine.excecoes.Excecoes.JogadaInvalida;
-import engine.excecoes.Excecoes.PosicaoInvalida;
 import engine.modelo.Jogador;
 import engine.modelo.Jogo;
-import engine.modelo.Tabuleiro;
-import engine.regras.PosicionamentoLivre;
-import engine.regras.TabuleiroVazio;
-import engine.regras.VitoriaPorAlinhamento;
 import engine.terminal.InterfaceDeTerminal;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
 
+    private static final Path PASTA_DOS_JOGOS = Path.of("jogos");
+
     public static void main(String[] args) {
         InterfaceDeTerminal terminal = new InterfaceDeTerminal(new Scanner(System.in));
+        CarregadorDeJogo carregador = new CarregadorDeJogo(new FabricaDeRegras());
+
+        terminal.exibirBanner();
         try {
-            Tabuleiro tabuleiro = new Tabuleiro(3, 3);
-            List<Jogador> jogadores = terminal.criarJogadores(2, List.of("X", "O"));
-            Jogo jogo = new Jogo("jogo da velha", tabuleiro, jogadores,
-                    new TabuleiroVazio(), new PosicionamentoLivre(), new VitoriaPorAlinhamento(3));
+            Path arquivo = args.length > 0
+                    ? Path.of(args[0])
+                    : terminal.escolherArquivo(PASTA_DOS_JOGOS);
+            ConfiguracaoDoJogo configuracao = carregador.ler(arquivo);
+            List<Jogador> jogadores = terminal.criarJogadores(
+                    configuracao.getJogadores().getQuantidade(),
+                    configuracao.getJogadores().getSimbolosSugeridos());
+            Jogo jogo = carregador.montar(configuracao, jogadores);
             terminal.executar(jogo);
-        } catch (ConfiguracaoInvalida | PosicaoInvalida | JogadaInvalida e) {
-            terminal.exibirErro("erro ao carregar o jogo: " + e.getMessage());
+        } catch (ConfiguracaoInvalida e) {
+            terminal.exibirErroDeCarregamento(e.getMessage());
         }
     }
 }
