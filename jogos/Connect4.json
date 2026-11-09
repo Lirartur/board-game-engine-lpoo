@@ -1,0 +1,10 @@
+{
+  "nome": "Connect4",
+  "tabuleiro": { "linhas": 6, "colunas": 7 },
+  "jogadores": { "quantidade": 2, "simbolosSugeridos": ["X", "O"] },
+  "regras": {
+    "preparacao": "TABULEIRO_VAZIO",
+    "movimento": "QUEDA_POR_COLUNA",
+    "vitoria": { "tipo": "ALINHAMENTO", "quantidade": 4 }
+  }
+}
