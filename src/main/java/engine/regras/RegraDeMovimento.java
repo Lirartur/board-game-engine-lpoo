@@ -14,4 +14,8 @@ public interface RegraDeMovimento {
      */
     boolean executar(Tabuleiro tabuleiro, Jogador jogador, Posicao posicao)
             throws PosicaoInvalida, JogadaInvalida;
+
+    default boolean usarNumeroDaColuna() {
+        return false;
+    }
 }
