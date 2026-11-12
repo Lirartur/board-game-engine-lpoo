@@ -57,6 +57,10 @@ public class Jogo {
         return resultado.estado() != EstadoDoJogo.EM_ANDAMENTO;
     }
 
+    public boolean usaNumeroDaColuna() {
+        return regraDeMovimento.usaNumeroDaColuna();
+    }
+
     public void jogar(Posicao posicao) throws PosicaoInvalida, JogadaInvalida {
         if (terminou()) {
             throw new JogadaInvalida("A partida ja terminou.");
