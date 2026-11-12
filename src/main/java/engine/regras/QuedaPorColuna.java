@@ -25,4 +25,9 @@ public class QuedaPorColuna implements RegraDeMovimento {
         }
         throw new JogadaInvalida("Coluna cheia.");
     }
+
+    @Override
+    public boolean usarNumeroDaColuna() {
+        return true;
+    }
 }
