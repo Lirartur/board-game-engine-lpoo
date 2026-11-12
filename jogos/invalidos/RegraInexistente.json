@@ -1,0 +1,10 @@
+{
+  "nome": "Teste Regra Inexistente",
+  "tabuleiro": { "linhas": 3, "colunas": 3 },
+  "jogadores": { "quantidade": 2, "simbolosSugeridos": ["X", "O"] },
+  "regras": {
+    "movimento": "POSICIONAMENTO_LIVRE",
+    "vitoria": { "tipo": "SUPER_WIN", "quantidade": 3 }
+  }
+}
+

@@ -1,0 +1,9 @@
+{
+  "nome": "Teste Tabuleiro Negativo",
+  "tabuleiro": { "linhas": -3, "colunas": 3 },
+  "jogadores": { "quantidade": 2, "simbolosSugeridos": ["X", "O"] },
+  "regras": {
+    "movimento": "POSICIONAMENTO_LIVRE",
+    "vitoria": { "tipo": "ALINHAMENTO", "quantidade": 3 }
+  }
+}

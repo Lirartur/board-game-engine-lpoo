@@ -29,7 +29,9 @@ public class InterfaceDeTerminal {
     }
 
     public void exibirBanner() {
-        System.out.println("ENGINE");
+        System.out.println("================================");
+        System.out.println("          BOARD ENGINE");
+        System.out.println("================================");
     }
 
     public Path escolherArquivo(Path pasta) throws ConfiguracaoInvalida {
@@ -80,19 +82,20 @@ public class InterfaceDeTerminal {
     }
 
     public void executar(Jogo jogo) {
+        boolean porColuna = jogo.usaNumeroDaColuna();
         System.out.println();
         System.out.println("Jogo: " + jogo.getNome());
         while (!jogo.terminou()) {
-            desenharTabuleiro(jogo.getTabuleiro());
+            desenharTabuleiro(jogo.getTabuleiro(), porColuna);
             Jogador jogador = jogo.getJogadorDaVez();
-            Posicao posicao = lerPosicao(jogador, jogo.getTabuleiro());
+            Posicao posicao = lerPosicao(jogador, jogo.getTabuleiro(), porColuna);
             try {
                 jogo.jogar(posicao);
             } catch (PosicaoInvalida | JogadaInvalida e) {
                 exibirErro(e.getMessage());
             }
         }
-        desenharTabuleiro(jogo.getTabuleiro());
+        desenharTabuleiro(jogo.getTabuleiro(), porColuna);
         exibirResultado(jogo.getResultado());
     }
 
@@ -137,9 +140,11 @@ public class InterfaceDeTerminal {
         }
     }
 
-    private Posicao lerPosicao(Jogador jogador, Tabuleiro tabuleiro) {
+    private Posicao lerPosicao(Jogador jogador, Tabuleiro tabuleiro, boolean porColuna) {
+        int colunas = tabuleiro.getColunas();
+        String alvo = porColuna ? "da coluna" : "da posicao";
         while (true) {
-            System.out.print(jogador + ", informe o numero da posicao: ");
+            System.out.print(jogador + ", informe o numero " + alvo + ": ");
             String texto = lerLinha().trim();
             try {
                 int numero = Integer.parseInt(texto);
@@ -147,38 +152,61 @@ public class InterfaceDeTerminal {
                     exibirErro("Digite um numero maior que zero.");
                     continue;
                 }
-                int colunas = tabuleiro.getColunas();
+                if (porColuna) {
+                    if (numero > colunas) {
+                        exibirErro("Escolha uma coluna de 1 a " + colunas + ".");
+                        continue;
+                    }
+                    return new Posicao(0, numero - 1);
+                }
                 return new Posicao((numero - 1) / colunas, (numero - 1) % colunas);
             } catch (NumberFormatException e) {
-                exibirErro("Digite apenas o numero da posicao.");
+                exibirErro("Digite apenas o numero " + alvo + ".");
             }
         }
     }
 
-    private void desenharTabuleiro(Tabuleiro tabuleiro) {
+    private void desenharTabuleiro(Tabuleiro tabuleiro, boolean porColuna) {
         int linhas = tabuleiro.getLinhas();
         int colunas = tabuleiro.getColunas();
-        int largura = String.valueOf(linhas * colunas).length();
+        int maiorNumero = porColuna ? colunas : linhas * colunas;
+        int largura = String.valueOf(maiorNumero).length();
         String separador = "+" + ("-".repeat(largura + 2) + "+").repeat(colunas);
 
         System.out.println();
+        if (porColuna) {
+            System.out.println(cabecalhoDasColunas(colunas, largura));
+        }
         System.out.println(separador);
         for (int l = 0; l < linhas; l++) {
             StringBuilder linha = new StringBuilder("|");
             for (int c = 0; c < colunas; c++) {
                 int numero = l * colunas + c + 1;
-                linha.append(textoDaCasa(tabuleiro, new Posicao(l, c), numero, largura)).append("|");
+                linha.append(textoDaCasa(tabuleiro, new Posicao(l, c), numero, largura, porColuna))
+                        .append("|");
             }
             System.out.println(linha);
             System.out.println(separador);
         }
     }
 
-    private String textoDaCasa(Tabuleiro tabuleiro, Posicao posicao, int numero, int largura) {
+    private String cabecalhoDasColunas(int colunas, int largura) {
+        StringBuilder cabecalho = new StringBuilder(" ");
+        for (int c = 1; c <= colunas; c++) {
+            cabecalho.append(" ").append(String.format("%" + largura + "s", c)).append("  ");
+        }
+        return cabecalho.toString();
+    }
+
+    private String textoDaCasa(Tabuleiro tabuleiro, Posicao posicao, int numero,
+                               int largura, boolean porColuna) {
         Peca peca = pecaEm(tabuleiro, posicao);
         String formato = "%" + largura + "s";
         if (peca != null && peca.estaVirada()) {
             return "[" + String.format(formato, peca.getSimbolo()) + "]";
+        }
+        if (porColuna) {
+            return " ".repeat(largura + 2);
         }
         return " " + String.format(formato, numero) + " ";
     }

@@ -27,7 +27,7 @@ public class QuedaPorColuna implements RegraDeMovimento {
     }
 
     @Override
-    public boolean usarNumeroDaColuna() {
+    public boolean usaNumeroDaColuna() {
         return true;
     }
 }

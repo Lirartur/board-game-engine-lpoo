@@ -9,13 +9,17 @@ import engine.modelo.Tabuleiro;
 public interface RegraDeMovimento {
 
     /**
-     * faz a jogada no tabuleiro.
-     * ficatrue se o jogador mantem a vez, false se a vez passa.
+     * Executa a jogada no tabuleiro.
+     * Retorna true se o jogador mantem a vez, false se a vez passa.
      */
     boolean executar(Tabuleiro tabuleiro, Jogador jogador, Posicao posicao)
             throws PosicaoInvalida, JogadaInvalida;
 
-    default boolean usarNumeroDaColuna() {
+    /**
+     * Indica se o jogador escolhe apenas o numero da coluna (como no Connect 4)
+     * em vez do numero da casa.
+     */
+    default boolean usaNumeroDaColuna() {
         return false;
     }
 }
