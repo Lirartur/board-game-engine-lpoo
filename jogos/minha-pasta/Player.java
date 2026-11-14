@@ -6,3 +6,7 @@ public class Player {
         this.name = name;
         this.board = new Board(rows, cols);
     }
+    
+    public String getName() { return name; }
+    public Board getBoard() { return board; }
+}
